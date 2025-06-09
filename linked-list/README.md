@@ -11,4 +11,4 @@ This project demonstrates an advanced, production-level implementation of a sing
 - Modular Project Structure
 
 ## Usage
-python main.py
+main.py
