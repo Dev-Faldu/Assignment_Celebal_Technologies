@@ -1,12 +1,4 @@
-# Titanic Data Visualization Masterpiece
-
-> **Portfolio-Killer Data Science Project** | Elite-Level Visualization & Analysis
-
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
-[![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-orange.svg)](https://jupyter.org)
-[![Plotly](https://img.shields.io/badge/Plotly-Interactive-green.svg)](https://plotly.com)
-
-## Project Overview
+# Titanic Data Visualization 
 
 This project represents the pinnacle of data visualization excellence, transforming the legendary Titanic dataset into a series of stunning, insight-rich visualizations that would make any data scientist weep with joy.
 
@@ -52,5 +44,4 @@ Artistic violin plots showing age distribution patterns by survival.
 ### 7.  Interactive Sunburst
 Mind-blowing interactive Plotly visualization for deep data exploration.
 
-##  Quick Start
 
