@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Guide: ML Deployment & SQL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: "Soothing Neutrals" - A palette grounded in warm grays and off-whites, with a calm slate blue for interactive elements and accents. This creates a professional, focused, and harmonious learning environment. -->
+    <!-- Application Structure Plan: The application is structured as a single page with two primary, switchable sections: "ML with Streamlit" and "SQL Fundamentals," controlled by a main navigation tab system. This design was chosen to cleanly separate the two distinct topics from the source report, allowing users to focus on one area at a time without distraction. The "ML with Streamlit" section transforms the static code into an interactive simulator, providing a hands-on experience that mimics the final Streamlit app. The "SQL Fundamentals" section uses an accordion-style layout to present the command reference, making the information easily scannable and digestible. This architecture prioritizes active learning and exploration over passive reading of the original linear notebook. -->
+    <!-- Visualization & Content Choices: 
+        1. Report Info: Streamlit App for Iris Prediction -> Goal: Demonstrate a deployed ML model's interactivity -> Viz/Presentation: Interactive HTML form with sliders and a dynamic output display (text and image) -> Interaction: User manipulates sliders to input features and clicks a button to see a simulated prediction, which updates the UI. -> Justification: This directly simulates the end-user experience of a Streamlit app, making the concept of ML deployment tangible and interactive without needing a live Python backend. -> Library/Method: Vanilla JavaScript, HTML, Tailwind CSS.
+        2. Report Info: SQL Command Reference (DDL, DML, TCL) -> Goal: Provide a clear, organized, and easy-to-navigate reference for SQL commands. -> Viz/Presentation: An accordion-style UI where each command category (DDL, DML, TCL) can be expanded to show its respective commands. Each command is a clickable item revealing its syntax and an example. -> Interaction: User clicks on categories and specific commands to toggle the visibility of detailed information. -> Justification: This hierarchical structure prevents information overload and allows for quick lookup, which is more user-friendly than a long, scrolling list. -> Library/Method: Vanilla JavaScript, HTML, Tailwind CSS.
+        3. Visuals: Iris flower images are used to provide immediate visual feedback for the prediction in the ML simulator, enhancing comprehension. Simple styled divs are used to create clean containers for code and text.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .nav-btn {
+            transition: all 0.3s ease;
+        }
+        .nav-btn.active {
+            background-color: #4f46e5;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .nav-btn:not(.active):hover {
+            background-color: #eef2ff;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+            padding: 0 1.5rem;
+        }
+        .accordion-content.open {
+            max-height: 1000px;
+            padding: 1rem 1.5rem;
+        }
+        .code-block {
+            background-color: #1f2937;
+            color: #d1d5db;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.5rem;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-7xl">
+
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Interactive Guide</h1>
+            <p class="text-lg md:text-xl text-gray-600 mt-2">ML Deployment with Streamlit & SQL Fundamentals</p>
+        </header>
+
+        <nav class="flex justify-center mb-8 bg-white p-2 rounded-xl shadow-sm max-w-md mx-auto">
+            <button id="nav-ml" class="nav-btn active w-1/2 py-2 px-4 rounded-lg font-semibold">ML with Streamlit</button>
+            <button id="nav-sql" class="nav-btn w-1/2 py-2 px-4 rounded-lg font-semibold">SQL Fundamentals</button>
+        </nav>
+
+        <main>
+            <!-- ML Deployment Section -->
+            <section id="ml-section">
+                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                    <h2 class="text-3xl font-bold mb-4 text-center text-gray-800">Part 1: Deploying a Machine Learning Model</h2>
+                    <p class="text-center text-gray-600 mb-8 max-w-3xl mx-auto">This section provides a hands-on guide to deploying a machine learning model. We'll walk through the process of building a simple web application to predict the species of an Iris flower based on its measurements, using a Random Forest Classifier and simulating a Streamlit deployment for an interactive experience.</p>
+
+                    <div class="grid md:grid-cols-2 gap-8 items-start">
+                        <!-- Left Side: Explanation -->
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="text-2xl font-semibold text-gray-700 mb-2">The Process Explained</h3>
+                                <p class="text-gray-600">We start by training a machine learning model on the famous Iris dataset. The goal is to classify a flower into one of three species (Setosa, Versicolor, or Virginica) based on four features: sepal length, sepal width, petal length, and petal width. After training a Random Forest model, we simulate its deployment in a web application, allowing you to interact with it directly.</p>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-semibold text-gray-700 mb-2">Model Training Code</h4>
+                                <p class="text-gray-600 mb-3">The following Python code loads the data, splits it for training and testing, and trains the classifier. The final model is saved to a file (`.pkl`) so our application can use it.</p>
+                                <div class="code-block">
+<pre><code>import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+import pickle
+
+# Load the iris dataset
+iris = load_iris()
+X = pd.DataFrame(iris.data, columns=iris.feature_names)
+y = pd.Series(iris.target)
+
+# Split the data and train the model
+X_train, _, y_train, _ = train_test_split(X, y, test_size=0.2, random_state=42)
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# Save the trained model
+with open('iris_model.pkl', 'wb') as f:
+    pickle.dump(model, f)
+</code></pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Side: Interactive Simulator -->
+                        <div class="bg-indigo-50 p-6 rounded-xl border border-indigo-200 sticky top-8">
+                            <h3 class="text-2xl font-semibold text-gray-800 text-center mb-4">Iris Species Predictor</h3>
+                            <p class="text-center text-sm text-gray-600 mb-6">Adjust the sliders to match a flower's features and click predict to see the model's classification.</p>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="sepal_length" class="flex justify-between text-sm font-medium text-gray-700"><span>Sepal Length (cm)</span><span id="sepal_length_val">5.4</span></label>
+                                    <input type="range" id="sepal_length" min="4.0" max="8.0" value="5.4" step="0.1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                </div>
+                                <div>
+                                    <label for="sepal_width" class="flex justify-between text-sm font-medium text-gray-700"><span>Sepal Width (cm)</span><span id="sepal_width_val">3.4</span></label>
+                                    <input type="range" id="sepal_width" min="2.0" max="4.5" value="3.4" step="0.1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                </div>
+                                <div>
+                                    <label for="petal_length" class="flex justify-between text-sm font-medium text-gray-700"><span>Petal Length (cm)</span><span id="petal_length_val">1.3</span></label>
+                                    <input type="range" id="petal_length" min="1.0" max="7.0" value="1.3" step="0.1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                </div>
+                                <div>
+                                    <label for="petal_width" class="flex justify-between text-sm font-medium text-gray-700"><span>Petal Width (cm)</span><span id="petal_width_val">0.2</span></label>
+                                    <input type="range" id="petal_width" min="0.1" max="2.5" value="0.2" step="0.1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                </div>
+                            </div>
+
+                            <button id="predict-btn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-6 transition-transform transform hover:scale-105">
+                                Predict Species
+                            </button>
+
+                            <div id="prediction-output" class="text-center mt-6 p-4 bg-white rounded-lg min-h-[180px] flex flex-col justify-center items-center transition-opacity duration-500 opacity-0">
+                                <!-- Prediction will be shown here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SQL Basics Section -->
+            <section id="sql-section" class="hidden">
+                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+                    <h2 class="text-3xl font-bold mb-4 text-center text-gray-800">Part 2: SQL Fundamentals</h2>
+                    <p class="text-center text-gray-600 mb-8 max-w-3xl mx-auto">This section is an interactive reference for fundamental SQL commands. SQL (Structured Query Language) is the standard language for managing relational databases. Click on each category to explore the commands used to define, manipulate, and control your data.</p>
+                    
+                    <div class="space-y-4 max-w-4xl mx-auto">
+                        <!-- DDL -->
+                        <div class="border rounded-lg bg-gray-50">
+                            <button class="accordion-toggle w-full flex justify-between items-center p-4 text-left font-semibold text-xl text-gray-700 hover:bg-gray-100">
+                                <span>Data Definition Language (DDL)</span>
+                                <span class="transform transition-transform duration-300">&#9662;</span>
+                            </button>
+                            <div class="accordion-content">
+                                <p class="mb-4 text-gray-600">DDL commands are used to define or modify the structure of your database and tables. These are the architectural blueprints for your data.</p>
+                                <div class="space-y-3">
+                                    <div class="code-block">
+                                        <h4 class="font-bold text-lg text-green-300">CREATE</h4>
+                                        <p class="text-sm mb-2 text-gray-400">Used to create a new table, database, or other objects.</p>
+                                        <pre><code>CREATE TABLE Employees (
+    EmployeeID INT PRIMARY KEY,
+    FirstName VARCHAR(50),
+    LastName VARCHAR(50)
+);</code></pre>
+                                    </div>
+                                    <div class="code-block">
+                                        <h4 class="font-bold text-lg text-yellow-300">ALTER</h4>
+                                        <p class="text-sm mb-2 text-gray-400">Used to modify the structure of an existing table (e.g., add or delete a column).</p>
+                                        <pre><code>ALTER TABLE Employees ADD Email VARCHAR(100);</code></pre>
+                                    </div>
+                                    <div class="code-block">
+                                        <h4 class="font-bold text-lg text-red-400">DROP</h4>
+                                        <p class="text-sm mb-2 text-gray-400">Used to permanently delete an entire table, database, or object.</p>
+                                        <pre><code>DROP TABLE Employees;</code></pre>
+                                    </div>
+                                     <div class="code-block">
+                                        <h4 class="font-bold text-lg text-red-400">TRUNCATE</h4>
+                                        <p class="text-sm mb-2 text-gray-400">Used to delete all data from a table quickly, without deleting the table itself.</p>
+                                        <pre><code>TRUNCATE TABLE Employees;</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DML -->
+                        <div class="border rounded-lg bg-gray-50">
+                            <button class="accordion-toggle w-full flex justify-between items-center p-4 text-left font-semibold text-xl text-gray-700 hover:bg-gray-100">
+                                <span>Data Manipulation Language (DML)</span>
+                                <span class="transform transition-transform duration-300">&#9662;</span>
+                            </button>
+                            <div class="accordion-content">
+                                <p class="mb-4 text-gray-600">DML commands are used for managing the data within your tables: adding, updating, and removing records.</p>
+                                <div class="space-y-3">
+                                    <div class="code-block">
+                                        <h4 class="font-bold text-lg text-green-300">INSERT</h4>
+                                        <p class="text-sm mb-2 text-gray-400">Used to add new rows of data to a table.</p>
+                                        <pre><code>INSERT INTO Employees (EmployeeID, FirstName, LastName)
+VALUES (1, 'John', 'Doe');</code></pre>
+                                    </div>
+                                    <div class="code-block">
+                                        <h4 class="font-bold text-lg text-yellow-300">UPDATE</h4>
+                                        <p class="text-sm mb-2 text-gray-400">Used to modify existing records in a table.</p>
+                                        <pre><code>UPDATE Employees SET LastName = 'Smith' WHERE EmployeeID = 1;</code></pre>
+                                    </div>
+                                    <div class="code-block">
+                                        <h4 class="font-bold text-lg text-red-400">DELETE</h4>
+                                        <p class="text-sm mb-2 text-gray-400">Used to remove rows from a table.</p>
+                                        <pre><code>DELETE FROM Employees WHERE EmployeeID = 1;</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TCL -->
+                        <div class="border rounded-lg bg-gray-50">
+                            <button class="accordion-toggle w-full flex justify-between items-center p-4 text-left font-semibold text-xl text-gray-700 hover:bg-gray-100">
+                                <span>Transaction Control Language (TCL)</span>
+                                <span class="transform transition-transform duration-300">&#9662;</span>
+                            </button>
+                            <div class="accordion-content">
+                                <p class="mb-4 text-gray-600">TCL commands manage transactions in the database, ensuring data integrity by grouping a set of operations into a single logical unit.</p>
+                                 <div class="space-y-3">
+                                    <div class="code-block">
+                                        <h4 class="font-bold text-lg text-blue-300">COMMIT</h4>
+                                        <p class="text-sm mb-2 text-gray-400">Used to permanently save all changes made in the current transaction.</p>
+                                        <pre><code>COMMIT;</code></pre>
+                                    </div>
+                                    <div class="code-block">
+                                        <h4 class="font-bold text-lg text-orange-300">ROLLBACK</h4>
+                                        <p class="text-sm mb-2 text-gray-400">Used to undo changes made in the current transaction that have not yet been committed.</p>
+                                        <pre><code>ROLLBACK;</code></pre>
+                                    </div>
+                                    <div class="code-block">
+                                        <h4 class="font-bold text-lg text-purple-300">SAVEPOINT</h4>
+                                        <p class="text-sm mb-2 text-gray-400">Used to set a point within a transaction to which you can later roll back.</p>
+                                        <pre><code>SAVEPOINT MySavepoint;</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Navigation
+            const navMl = document.getElementById('nav-ml');
+            const navSql = document.getElementById('nav-sql');
+            const mlSection = document.getElementById('ml-section');
+            const sqlSection = document.getElementById('sql-section');
+
+            navMl.addEventListener('click', () => {
+                mlSection.classList.remove('hidden');
+                sqlSection.classList.add('hidden');
+                navMl.classList.add('active');
+                navSql.classList.remove('active');
+            });
+
+            navSql.addEventListener('click', () => {
+                sqlSection.classList.remove('hidden');
+                mlSection.classList.add('hidden');
+                navSql.classList.add('active');
+                navMl.classList.remove('active');
+            });
+
+            // ML Simulator
+            const sliders = {
+                sepalLength: document.getElementById('sepal_length'),
+                sepalWidth: document.getElementById('sepal_width'),
+                petalLength: document.getElementById('petal_length'),
+                petalWidth: document.getElementById('petal_width')
+            };
+
+            const valueLabels = {
+                sepalLength: document.getElementById('sepal_length_val'),
+                sepalWidth: document.getElementById('sepal_width_val'),
+                petalLength: document.getElementById('petal_length_val'),
+                petalWidth: document.getElementById('petal_width_val')
+            };
+            
+            for (const key in sliders) {
+                sliders[key].addEventListener('input', (event) => {
+                    valueLabels[key].textContent = event.target.value;
+                });
+            }
+
+            const predictBtn = document.getElementById('predict-btn');
+            const predictionOutput = document.getElementById('prediction-output');
+
+            predictBtn.addEventListener('click', () => {
+                const pL = parseFloat(sliders.petalLength.value);
+                const pW = parseFloat(sliders.petalWidth.value);
+                const sL = parseFloat(sliders.sepalLength.value);
+
+                let prediction = '';
+                let imageUrl = '';
+                let caption = '';
+
+                // Simplified prediction logic based on known Iris data characteristics
+                if (pL < 2.5) {
+                    prediction = 'Setosa';
+                    imageUrl = 'https://upload.wikimedia.org/wikipedia/commons/5/56/Kosaciec_syberyjski_Iris_sibirica.jpg';
+                    caption = 'Iris Setosa';
+                } else if (pW > 1.7) {
+                    prediction = 'Virginica';
+                    imageUrl = 'https://upload.wikimedia.org/wikipedia/commons/9/9f/Iris_virginica.jpg';
+                    caption = 'Iris Virginica';
+                } else if (pL >= 3.0 && pL <= 5.1) {
+                     prediction = 'Versicolor';
+                    imageUrl = 'https://upload.wikimedia.org/wikipedia/commons/4/41/Iris_versicolor_3.jpg';
+                    caption = 'Iris Versicolor';
+                } else {
+                    prediction = 'Virginica'; // Default for edge cases
+                    imageUrl = 'https://upload.wikimedia.org/wikipedia/commons/9/9f/Iris_virginica.jpg';
+                    caption = 'Iris Virginica';
+                }
+                
+                predictionOutput.style.opacity = '0';
+
+                setTimeout(() => {
+                    predictionOutput.innerHTML = `
+                        <img src="${imageUrl}" alt="${caption}" class="h-24 w-24 object-cover rounded-full mb-3 shadow-md">
+                        <p class="text-gray-600 text-sm">Prediction:</p>
+                        <p class="text-2xl font-bold text-indigo-600">${prediction}</p>
+                    `;
+                    predictionOutput.style.opacity = '1';
+                }, 300);
+            });
+            
+            predictBtn.click();
+
+
+            // SQL Accordion
+            const accordions = document.querySelectorAll('.accordion-toggle');
+            accordions.forEach(button => {
+                button.addEventListener('click', () => {
+                    const content = button.nextElementSibling;
+                    const icon = button.querySelector('span:last-child');
+                    
+                    if (content.classList.contains('open')) {
+                        content.classList.remove('open');
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        // Optional: close other accordions
+                        accordions.forEach(b => {
+                            b.nextElementSibling.classList.remove('open');
+                            b.querySelector('span:last-child').style.transform = 'rotate(0deg)';
+                        });
+                        content.classList.add('open');
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
